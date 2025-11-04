@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Monthly Sales Predictor of supermarket</title>
+  <style>
+    body{font-family:Arial, sans-serif; padding:30px; max-width:700px; margin:auto}
+    input{padding:8px;margin:6px 0;width:100%}
+    button{padding:10px 16px;margin-top:8px}
+    .card{border:1px solid #1f1d1dff;padding:16px;border-radius:8px;box-shadow:0 2px 6px rgba(22, 237, 86, 0.9)}
+  </style>
+</head>
+<body>
+  <h1>Monthly Sales Predictor of supermarket</h1>
+  <div class="card">
+    <label>Year</label>
+    <input id="year" type="number" value="2022" />
+    <label>Month (1-12)</label>
+    <input id="month" type="number" min="1" max="12" value="1" />
+    <button id="predict">Predict</button>
+    <div id="result" style="margin-top:12px"></div>
+  </div>
+
+  <script>
+    document.getElementById('predict').onclick = async function(){
+      const year = parseInt(document.getElementById('year').value);
+      const month = parseInt(document.getElementById('month').value);
+      const resDiv = document.getElementById('result');
+      resDiv.textContent = 'Loading...';
+      try {
+        const resp = await fetch('/api/predict', {
+          method:'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({year, month})
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          resDiv.innerHTML = '<strong>Predicted monthly sales:</strong> ' + data.predicted_monthly_sales.toFixed(2);
+        } else {
+          resDiv.textContent = data.error || JSON.stringify(data);
+        }
+      } catch (e) {
+        resDiv.textContent = "Error: " + e.message;
+      }
+    };
+  </script>
+</body>
+</html>
